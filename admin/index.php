@@ -6,16 +6,18 @@ if (!isset($_SESSION['usuario_id'])) {
     exit();
 }
 
-// Control de acceso para la vista de administrador (admin/index.php)
-if (basename(__FILE__) == 'index.php' && $_SESSION['rol_id'] != 1) { // 1 es el ID del rol "administrador"
+if (basename(__FILE__) == 'index.php' && $_SESSION['rol_id'] != 1) {
     die("Acceso denegado. No tienes permisos para acceder a esta página.");
 }
 
-// No se necesita control de acceso explícito para la vista de usuario, 
-// ya que cualquier usuario autenticado puede acceder a ella.
-// Si necesitas un control más granular dentro de la vista de usuario, lo puedes agregar aquí.
+require '../conexion.php';
 
-// ... resto del contenido de la página ...
+try {
+    $stmt = $conexion->query("SELECT id, nombre FROM roles");
+    $roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Error al obtener los roles: " . $e->getMessage());
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -23,13 +25,33 @@ if (basename(__FILE__) == 'index.php' && $_SESSION['rol_id'] != 1) { // 1 es el 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
-    <title>Document</title>
+    <title>Panel de Administrador</title>
 </head>
 <body>
+    <nav class="nav justify-content-center">
+        <a href="endsession.php" class="btn btn-danger">Cerrar sesión ❌</a>
+    </nav>
+
     <h1 class="display-1">Bienvenido administrador</h1>
-    <a href="endsession.php" class="btn btn-danger">Cerrar sesion</a>
-    <?php
-    //echo(session_id()); -> devuelve un identificador unico de la sesion
-    ?>
+    <h2 class="display-2">Ingresar usuarios</h2>
+
+    <form action="procesar_nuevo_usuario.php" method="post">
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input type="text" name="name_new_user" class="form-control" placeholder="Ingrese un nombre de usuario" required>
+            <label class="form-label">Contraseña</label>
+            <input type="password" name="pass_new_user" class="form-control" required>
+            <label class="form-label">Seleccionar rol para el nuevo usuario</label>
+            <select name="rol_id" class="form-control" required>
+                <option value="">Seleccionar rol</option> <?php // Opción por defecto ?>
+                <?php foreach ($roles as $rol): ?>
+                    <option value="<?php echo $rol['id']; ?>">
+                        <?php echo htmlspecialchars($rol['nombre']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <input type="submit" value="Crear usuario" class="btn btn-success mt-3">
+        </div>
+    </form>
 </body>
 </html>
