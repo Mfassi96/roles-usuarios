@@ -22,9 +22,14 @@ if (basename(__FILE__) == 'index.php' && $_SESSION['rol_id'] != 1) { // 1 es el 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../node_modules/bootstrap/dist/css/bootstrap.min.css">
     <title>Document</title>
 </head>
 <body>
-    <h1>Bienvenido administrador</h1>
+    <h1 class="display-1">Bienvenido administrador</h1>
+    <a href="endsession.php" class="btn btn-danger">Cerrar sesion</a>
+    <?php
+    //echo(session_id()); -> devuelve un identificador unico de la sesion
+    ?>
 </body>
 </html>
